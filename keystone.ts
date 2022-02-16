@@ -1,3 +1,4 @@
+import { CartItem } from './schemas/Cart';
 import 'dotenv/config';
 import { config, createSchema } from '@keystone-next/keystone/schema';
 import { createAuth } from '@keystone-next/auth';
@@ -8,6 +9,8 @@ import {
 import { Product } from './schemas/Product';
 import { User } from './schemas/User';
 import { ProductImage } from './schemas/ProductImage';
+import {insertSeedData} from './seed-data'
+import { sendPasswordResetEmail } from './lib/mail';
 
 const databaseUrl = process.env.DATABASE_URL;
 
@@ -23,6 +26,13 @@ const { withAuth } = createAuth({
   secretField: 'password',
   initFirstItem: {
     fields: ['name', 'email', 'password'],
+  },
+  passwordResetLink:{
+  async sendToken(args){
+  console.log(args)
+  await sendPasswordResetEmail(args.token,args.identity)
+  },
+  
   },
 });
 
@@ -43,6 +53,7 @@ export default withAuth(
       User,
       Product,
       ProductImage,
+      CartItem
     }),
     ui: {
       // TODO: add ui config
